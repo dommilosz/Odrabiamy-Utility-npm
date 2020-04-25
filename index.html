@@ -1,0 +1,206 @@
+<html>
+	<head>
+		<title>Odrabiamy NPM</title>
+		<link rel="stylesheet" href="index.css" />
+		<script>
+			function GetBooks() {
+				//each second, update the info.
+				url = document.getElementsByClassName("listbox-subjects")[0]
+					.value;
+				safeurl = encodeURI(url);
+				fullurl = "/getbooks?subject=" + safeurl;
+				const xhr = new XMLHttpRequest();
+				console.log(fullurl);
+				xhr.open("GET", fullurl, true);
+				xhr.onreadystatechange = function () {
+					if (this.readyState == 4 && this.status == 200) {
+						document.getElementsByClassName(
+							"listbox-books"
+						)[0].innerHTML = "";
+						response = JSON.parse(this.responseText);
+						response.forEach((element) => {
+							optionhtml =
+								'<option value="' +
+								element.Href +
+								'">' +
+								element.Title +
+								"</option>";
+							document.getElementsByClassName(
+								"listbox-books"
+							)[0].innerHTML += optionhtml;
+						});
+
+						GetOptn();
+					}
+				};
+				xhr.setRequestHeader("XPassword", hash);
+
+				xhr.send();
+			}
+			function GetOptn() {
+				//each second, update the info.
+				url = document.getElementsByClassName("listbox-books")[0].value;
+				safeurl = encodeURI(url);
+				fullurl = "/getoptn?url=" + safeurl;
+				const xhr = new XMLHttpRequest();
+				console.log(fullurl);
+				xhr.open("GET", fullurl, true);
+				xhr.onreadystatechange = function () {
+					if (this.readyState == 4 && this.status == 200) {
+						document.getElementsByClassName(
+							"listbox-pages"
+						)[0].innerHTML = "";
+						response = JSON.parse(this.responseText);
+						response.forEach((element) => {
+							optionhtml =
+								'<option value="strona-' +
+								element.Number +
+								'">' +
+								element.Number +
+								"</option>";
+							document.getElementsByClassName(
+								"listbox-pages"
+							)[0].innerHTML += optionhtml;
+						});
+
+						GetExercises();
+					}
+				};
+				xhr.setRequestHeader("XPassword", hash);
+
+				xhr.send();
+			}
+			function GetExercises() {
+				//each second, update the info.
+				url = document.getElementsByClassName("listbox-books")[0].value;
+				safeurl = encodeURI(url);
+				page = document.getElementsByClassName("listbox-pages")[0]
+					.value;
+				fullurl = "/getexercises?url=" + safeurl + "?page=" + page;
+				const xhr = new XMLHttpRequest();
+				console.log(fullurl);
+				xhr.open("GET", fullurl, true);
+				xhr.onreadystatechange = function () {
+					if (this.readyState == 4 && this.status == 200) {
+						document.getElementsByClassName(
+							"listbox-exercises"
+						)[0].innerHTML = "";
+						response = JSON.parse(this.responseText);
+						response.forEach((element) => {
+							optionhtml =
+								'<option value="' +
+								element.Href +
+								'">' +
+								element.Exercise +
+								"</option>";
+							document.getElementsByClassName(
+								"listbox-exercises"
+							)[0].innerHTML += optionhtml;
+						});
+
+						GetEx();
+					}
+				};
+				xhr.setRequestHeader("XPassword", hash);
+
+				xhr.send();
+			}
+			function GetEx() {
+				//each second, update the info.
+				url = document.getElementsByClassName("listbox-exercises")[0].value;
+				safeurl = encodeURI(url);
+				fullurl = "/getex?url=" + safeurl;
+				const xhr = new XMLHttpRequest();
+				console.log(fullurl);
+				xhr.open("GET", fullurl, true);
+				xhr.onreadystatechange = function () {
+					if (this.readyState == 4 && this.status == 200) {
+						
+						document.getElementsByClassName(
+							"output-ex"
+						)[0].value = (this.responseText);
+						document.getElementsByClassName("result")[0].src =  "data:image/png;base64,"+this.responseText;
+					}
+				};
+				xhr.setRequestHeader("XPassword", hash);
+
+				xhr.send();
+			}
+			hash;
+			function SetHash() {
+				if (document.URL.includes("?hash=")) {
+					hash = document.URL.slice(
+						document.URL.indexOf("?hash=") + 6
+					);
+				}
+			}
+			function GetSubjects() {
+				if (
+					document.getElementsByClassName("listbox-class").value != ""
+				) {
+					//each second, update the info.
+					url = document.getElementsByClassName("listbox-class")[0]
+						.value;
+					safeurl = encodeURI(url);
+					fullurl = "/getsubjects?class=" + safeurl;
+					const xhr = new XMLHttpRequest();
+					console.log(fullurl);
+					xhr.open("GET", fullurl, true);
+					xhr.onreadystatechange = function () {
+						if (this.readyState == 4 && this.status == 200) {
+							document.getElementsByClassName(
+								"listbox-subjects"
+							)[0].innerHTML = "";
+							response = JSON.parse(this.responseText);
+							response.forEach((element) => {
+								optionhtml =
+									'<option value="' +
+									element.value +
+									'">' +
+									element.Subject +
+									"</option>";
+								document.getElementsByClassName(
+									"listbox-subjects"
+								)[0].innerHTML += optionhtml;
+							});
+							GetBooks();
+						}
+					};
+					xhr.setRequestHeader("XPassword", hash);
+
+					xhr.send();
+				}
+			}
+			function OnLoad() {
+				SetHash();
+				GetSubjects();
+			}
+		</script>
+	</head>
+	<body onload="OnLoad()">
+		<div class="content">
+			<select class="listbox-class" onchange="GetSubjects()">
+				<option value="0">3 Klasa</option>
+				<option value="1">4 Klasa</option>
+				<option value="2">5 Klasa</option>
+				<option value="3">6 Klasa</option>
+				<option value="4">7 Klasa</option>
+				<option value="5">8 Klasa</option>
+				<option value="6">I Liceum</option>
+				<option value="7">II Liceum</option>
+				<option value="8">III Liceum</option>
+				<option value="9">I Technikum</option>
+				<option value="10">II Technikum</option>
+				<option value="11">III Technikum</option>
+				<option value="12">IV Technikum</option>
+			</select>
+			<select class="listbox-subjects" onchange="GetBooks()"> </select>
+			<select class="listbox-books" onchange="GetOptn()"> </select>
+			<select class="listbox-pages" onchange="GetExercises()"> </select>
+			<select class="listbox-exercises" onchange="GetEx()"> </select
+			><br />
+			<textarea class="output-ex" readonly="true"></textarea>
+			<img class="result"></img>
+		</div>
+	</body>
+</html>

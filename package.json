@@ -1,0 +1,17 @@
+{
+  "name": "Odrabiamy-Util-Npm",
+  "version": "1.0.0",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dommilosz/Odrabiamy-Utility-npm.git"
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "bugs": {},
+  "dependencies": {
+    "download-file": "^0.1.5",
+    "opn": "^6.0.0",
+    "odrabiamy-pl": "^2.3.0"
+  }
+}
