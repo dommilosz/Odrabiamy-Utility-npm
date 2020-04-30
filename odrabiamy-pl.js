@@ -1,5 +1,5 @@
 const puppeter = require('puppeteer')
-const puppeeteer = null;
+puppeeteer = null;
 var fs = require('fs');
 login_data = null;
 page = null;
