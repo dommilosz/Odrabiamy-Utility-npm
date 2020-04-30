@@ -16,7 +16,11 @@ async function login(email, password)
     let error = false
     try{browser = await puppeter.launch()}
     catch{
-        browser = await puppeter.launch({ executablePath: 'chromium-browser' })
+        try{
+        browser = await puppeter.launch({ executablePath: 'chromium-browser' })}catch{
+            puppeteer = require('puppeteer-core');
+            browser = await puppeeteer.launch({executablePath: '/usr/bin/chromium-browser'});
+        }
     }
     
     page = await browser.newPage();
