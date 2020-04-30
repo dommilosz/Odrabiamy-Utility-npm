@@ -171,29 +171,29 @@ function UpdateHash(hashes_arr, hash) {
 
 login = odrabiamy.login(secrets.username, secrets.password);
 
-function GetEx(url) {
-	let result = odrabiamy.GetExercise("https://odrabiamy.pl" + url);
+function GetEx(_url) {
+	let result = odrabiamy.GetExercise("https://odrabiamy.pl" + _url);
 	return result;
 }
-function GetOptn(url) {
-	result = odrabiamy.GetOptions(url);
+function GetOptn(_url) {
+	result = odrabiamy.GetOptions(_url);
 	return result;
 }
-function GetExercises(url, page) {
-	result = odrabiamy.GetExercises(url + "/" + page);
+function GetExercises(_url, _page) {
+	result = odrabiamy.GetExercises(_url + "/" + _page);
 	return result;
 }
-function SanitizeString(str) {
-	if (str) {
-		str2 = str.split("-")[1];
+function SanitizeString(_str) {
+	if (_str) {
+		str2 = _str.split("-")[1];
 		return str2;
 	}
 }
-function GetBooks(subject) {
-	resp = odrabiamy.GetBooks(subject);
+function GetBooks(_subject) {
+	resp = odrabiamy.GetBooks(_subject);
 	return resp;
 }
-function GetSubjects(classid) {
-	resp = odrabiamy.GetSubjects(classid);
+function GetSubjects(_classid) {
+	resp = odrabiamy.GetSubjects(_classid);
 	return resp;
 }

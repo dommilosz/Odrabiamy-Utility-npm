@@ -1,5 +1,9 @@
 const puppeter = require('puppeteer')
 var fs = require('fs');
+login_data = null;
+page = null;
+page = null;
+browser = null;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 function getRandomInt(min, max) {
@@ -10,13 +14,35 @@ async function login(email, password)
 {
     let cookies = []
     let error = false
-    let browser = await puppeter.launch({headless: true})
-    let page = await browser.newPage()
+    try{browser = await puppeter.launch()}
+    catch{
+        browser = await puppeter.launch({ executablePath: 'chromium-browser' })
+    }
+    
+    page = await browser.newPage();
     await page.goto('https://odrabiamy.pl/?signIn=true&type=Login')
     await page.type("#frontend-root > div > div:nth-child(1) > div > div > div > div.account-form > div > div > form > label.ValidatedField.ValidatedField--text > input", email)
     await page.type("#frontend-root > div > div:nth-child(1) > div > div > div > div.account-form > div > div > form > label.ValidatedField.ValidatedField--password > input", password)
-    await page.click("#frontend-root > div > div:nth-child(1) > div > div > div > div.account-form > div > div > form > div > button")
+    d1= await page.evaluate(()=>{
+        return document.getElementsByClassName("form-control")[0].value
+    })
+    d2 = await page.evaluate(()=>{
+        return document.getElementsByClassName("form-control")[1].value
+    })
+    d6 = await page.evaluate(()=>{
+        return document.getElementsByClassName("btn-login")[0].click();
+    })
+    await page.click(".btn-login");
+    await page.waitForSelector(".username");
+    try{await page.click('#frontend-root > div > div.rodo-modal-blur > div > div > div.rodo-form > div > div.buttons.rodo-box-item > button')}catch{}
+
     await page.waitFor(500)
+    d5= await page.evaluate(()=>{
+        return document.getElementsByClassName("form-control")[0].value
+    })
+    d7 = await page.evaluate(()=>{
+        return document.getElementsByClassName("username")[0].innerHTML
+    })
     error = await page.evaluate(() => {
         let element = document.querySelector("#frontend-root > div > div:nth-child(1) > div > div > div > div.account-form > div > div > form > p")
         if(element != undefined)
@@ -25,8 +51,8 @@ async function login(email, password)
             return false
     })
     cookies = await page.cookies()
-    await page.close()
-    await browser.close()
+    login_data = {"Cookies": cookies, "Error": error};
+    console.log("Logged In!");
     return {"Cookies": cookies, "Error": error}
 }
 
@@ -115,31 +141,24 @@ async function destroyCache(file_code)
 async function odrabiamySanitizeString(input)
 {
     var numeric = "1234567890"
-    var char_table = []
+    var char_pagele = []
     for(var i = 0; i<input.length; i++)
     {
         if(numeric.includes(input[i]))
-            char_table.push(input[i])
+            char_pagele.push(input[i])
     }
-    var sanitized_string = char_table.join('')
+    var sanitized_string = char_pagele.join('')
     return sanitized_string
 }
-async function odrabiamyGetPageExercises(href,login_data)
+async function odrabiamyGetPageExercises(href)
 {
-    let browser = undefined
-    let tab = undefined
-    browser = await puppeter.launch({headless: true})
-    tab = await browser.newPage()
-    if(login_data) 
-        await tab.setCookie(...login_data.Cookies);
 
-    await tab.goto(href)
-    await tab.waitFor(500)
-    if(!login_data)
-        await tab.click('#frontend-root > div > div.rodo-modal-blur > div > div > div.rodo-form > div > div.buttons.rodo-box-item > button')
+    await page.goto(href)
+    await page.waitFor(500)
+    try{await page.click('#frontend-root > div > div.rodo-modal-blur > div > div > div.rodo-form > div > div.buttons.rodo-box-item > button')}catch{}
     
 
-        let exercises = await tab.evaluate(() => {
+        let exercises = await page.evaluate(() => {
             let container = document.getElementsByClassName('exercise-header-row')
             let buttons = container[0].querySelectorAll("a")
             let data = []
@@ -151,22 +170,15 @@ async function odrabiamyGetPageExercises(href,login_data)
         })
         return exercises;
 }
-async function odrabiamyGetPages(href,login_data)
+async function odrabiamyGetPages(href)
 {
-    let browser = undefined
-    let tab = undefined
-    browser = await puppeter.launch({headless: true})
-    tab = await browser.newPage()
 
-    if(login_data) 
-        await tab.setCookie(...login_data.Cookies);
 
-    await tab.goto(href)
-    await tab.waitFor(500)
-    if(!login_data)
-        await tab.click('#frontend-root > div > div.rodo-modal-blur > div > div > div.rodo-form > div > div.buttons.rodo-box-item > button')
-    await tab.click('#frontend-root > div > div > div.content-wrapper > div > div.wide-wrapper.exercises > div.container > div.container-content > div.wide-wrapper.book-panel > div > div > div > div.page-nav > div.Select.Select--single.has-value')
-    var options = await tab.evaluate(() => {
+    await page.goto(href)
+    await page.waitFor(500)
+       try{await page.click('#frontend-root > div > div.rodo-modal-blur > div > div > div.rodo-form > div > div.buttons.rodo-box-item > button')}catch{}
+    await page.click('#frontend-root > div > div > div.content-wrapper > div > div.wide-wrapper.exercises > div.container > div.container-content > div.wide-wrapper.book-panel > div > div > div > div.page-nav > div.Select.Select--single.has-value')
+    var options = await page.evaluate(() => {
         
         let container = document.getElementById('react-select-4--list')
         let data = []
@@ -183,9 +195,7 @@ async function odrabiamyGetPages(href,login_data)
 }
 async function odrabiamyGetSubjects(class_id)
 {
-    let browser = await puppeter.launch({headless: true})
-    let page = await browser.newPage()
-    tab = await browser.newPage()
+
     classname = "";
     if(class_id==6){
         classname = "I-liceum";
@@ -212,12 +222,11 @@ async function odrabiamyGetSubjects(class_id)
         classname = (parseInt( class_id)+3)+"-szkoly-podstawowej";
     }
 
-    await tab.goto("https://odrabiamy.pl/"+classname)
-    await tab.waitFor(500)
-        await tab.click('#frontend-root > div > div.rodo-modal-blur > div > div > div.rodo-form > div > div.buttons.rodo-box-item > button')
+    await page.goto("https://odrabiamy.pl/"+classname)
+    await page.waitFor(500)
+    try{await page.click('#frontend-root > div > div.rodo-modal-blur > div > div > div.rodo-form > div > div.buttons.rodo-box-item > button')}catch{}
     
-    var options2 = await tab.evaluate(() => {
-        
+    var options2 = await page.evaluate(() => {
         let container = document.getElementsByClassName("subjects-tabs")[0]
         let data = []
         for(var index = 0; index < container.children.length; index++)
@@ -231,23 +240,20 @@ async function odrabiamyGetSubjects(class_id)
     
     return options2;
 }
-async function odrabiamyGetExercise(href, exercise_number, page, login_data)
+async function odrabiamyGetExercise(href) 
 {
-    let browser = undefined
-    let tab = undefined
-    browser = await puppeter.launch({headless: true})
-    tab = await browser.newPage()
 
-    await tab.goto(href)
-    await tab.waitFor(500)
 
-    if(login_data) 
-        await tab.setCookie(...login_data.Cookies);
-        await tab.click('#frontend-root > div > div.rodo-modal-blur > div > div > div.rodo-form > div > div.buttons.rodo-box-item > button')
-
+    await page.goto(href);
+    await page.waitFor(500);
+        
+        try{await page.click('#frontend-root > div > div.rodo-modal-blur > div > div > div.rodo-form > div > div.buttons.rodo-box-item > button')}catch{}
+        await page.waitForSelector(".username");
+        await page.waitFor(() => !document.querySelector(".freePart"));
+        await page.waitFor(500);
 
     
-    const rect = await tab.evaluate(() => {
+    const rect = await page.evaluate(() => {
         let elements = document.getElementsByClassName('exercise-solution')
         let element = null
         if(elements.length > 0)
@@ -260,7 +266,7 @@ async function odrabiamyGetExercise(href, exercise_number, page, login_data)
 
     if(rect)
     {
-        image = await tab.screenshot({
+        image = await page.screenshot({
             clip: {
                 x: rect.left - 0,
                 y: rect.top - 0,
@@ -269,7 +275,6 @@ async function odrabiamyGetExercise(href, exercise_number, page, login_data)
             }
         });
         
-        await browser.close()
         
         return Buffer.from(image).toString('base64');
     }
@@ -278,17 +283,11 @@ async function odrabiamyGetExercise(href, exercise_number, page, login_data)
         
 
 }
-async function odrabiamyGetBooks(subject, login_data) {
-    let browser = await puppeter.launch({headless: true})
-    let page = await browser.newPage()
-
-    if(login_data) 
-        await tab.setCookie(...login_data.Cookies);
+async function odrabiamyGetBooks(subject) {
 
     await page.goto(subject)
     await page.waitFor(500)
-    if(!login_data)
-        await page.click('#frontend-root > div > div.rodo-modal-blur > div > div > div.rodo-form > div > div.buttons.rodo-box-item > button')
+    try{await page.click('#frontend-root > div > div.rodo-modal-blur > div > div > div.rodo-form > div > div.buttons.rodo-box-item > button')}catch{}
     await page.click('#frontend-root > div > div > div.content-wrapper > div > div.Books > div.books-header > div.books-options > div.Select.search-field.grades.Select--single.has-value')
 
 
@@ -313,7 +312,6 @@ async function odrabiamyGetBooks(subject, login_data) {
         return data
     })
     //await page.waitFor(30000)
-    await browser.close()
     return result
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////

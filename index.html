@@ -3,8 +3,18 @@
 		<title>Odrabiamy NPM</title>
 		<link rel="stylesheet" href="index.css" />
 		<script>
+			sel_enabled = true;
+			function UpdateEnabled(_enabled){
+				sel_enabled = _enabled;
+				function Disable(element, index, array)
+				{
+  				element.disabled = !sel_enabled;
+				}
+				document.querySelectorAll("select").forEach(Disable);
+			}
 			function GetBooks() {
 				//each second, update the info.
+				UpdateEnabled(false);
 				url = document.getElementsByClassName("listbox-subjects")[0]
 					.value;
 				safeurl = encodeURI(url);
@@ -18,6 +28,13 @@
 							"listbox-books"
 						)[0].innerHTML = "";
 						response = JSON.parse(this.responseText);
+						optionhtml =
+								'<option value="' +
+								'">' +"Wybierz Ksiazke"+
+								"</option>";
+							document.getElementsByClassName(
+								"listbox-books"
+							)[0].innerHTML += optionhtml;
 						response.forEach((element) => {
 							optionhtml =
 								'<option value="' +
@@ -29,8 +46,8 @@
 								"listbox-books"
 							)[0].innerHTML += optionhtml;
 						});
+						UpdateEnabled(true);
 
-						GetOptn();
 					}
 				};
 				xhr.setRequestHeader("XPassword", hash);
@@ -38,6 +55,7 @@
 				xhr.send();
 			}
 			function GetOptn() {
+				UpdateEnabled(false);
 				//each second, update the info.
 				url = document.getElementsByClassName("listbox-books")[0].value;
 				safeurl = encodeURI(url);
@@ -51,6 +69,13 @@
 							"listbox-pages"
 						)[0].innerHTML = "";
 						response = JSON.parse(this.responseText);
+						optionhtml =
+								'<option value="strona-' +
+								'">' +"Wybierz Strone"+
+								"</option>";
+							document.getElementsByClassName(
+								"listbox-pages"
+							)[0].innerHTML += optionhtml;
 						response.forEach((element) => {
 							optionhtml =
 								'<option value="strona-' +
@@ -62,8 +87,8 @@
 								"listbox-pages"
 							)[0].innerHTML += optionhtml;
 						});
+						UpdateEnabled(true);
 
-						GetExercises();
 					}
 				};
 				xhr.setRequestHeader("XPassword", hash);
@@ -72,6 +97,7 @@
 			}
 			function GetExercises() {
 				//each second, update the info.
+				UpdateEnabled(false);
 				url = document.getElementsByClassName("listbox-books")[0].value;
 				safeurl = encodeURI(url);
 				page = document.getElementsByClassName("listbox-pages")[0]
@@ -86,6 +112,13 @@
 							"listbox-exercises"
 						)[0].innerHTML = "";
 						response = JSON.parse(this.responseText);
+						optionhtml =
+								'<option value="' +
+								'">' +"Wybierz Zadanie"+
+								"</option>";
+							document.getElementsByClassName(
+								"listbox-exercises"
+							)[0].innerHTML += optionhtml;
 						response.forEach((element) => {
 							optionhtml =
 								'<option value="' +
@@ -97,8 +130,8 @@
 								"listbox-exercises"
 							)[0].innerHTML += optionhtml;
 						});
+						UpdateEnabled(true);
 
-						GetEx();
 					}
 				};
 				xhr.setRequestHeader("XPassword", hash);
@@ -106,6 +139,7 @@
 				xhr.send();
 			}
 			function GetEx() {
+				UpdateEnabled(false);
 				//each second, update the info.
 				url = document.getElementsByClassName("listbox-exercises")[0].value;
 				safeurl = encodeURI(url);
@@ -120,6 +154,7 @@
 							"output-ex"
 						)[0].value = (this.responseText);
 						document.getElementsByClassName("result")[0].src =  "data:image/png;base64,"+this.responseText;
+						UpdateEnabled(true);
 					}
 				};
 				xhr.setRequestHeader("XPassword", hash);
@@ -135,6 +170,7 @@
 				}
 			}
 			function GetSubjects() {
+				UpdateEnabled(false);
 				if (
 					document.getElementsByClassName("listbox-class").value != ""
 				) {
@@ -152,6 +188,15 @@
 								"listbox-subjects"
 							)[0].innerHTML = "";
 							response = JSON.parse(this.responseText);
+							optionhtml =
+									'<option value="' +
+									
+									'">' +"Wybierz Przedmiot"+
+									
+									"</option>";
+								document.getElementsByClassName(
+									"listbox-subjects"
+								)[0].innerHTML += optionhtml;
 							response.forEach((element) => {
 								optionhtml =
 									'<option value="' +
@@ -163,7 +208,7 @@
 									"listbox-subjects"
 								)[0].innerHTML += optionhtml;
 							});
-							GetBooks();
+							UpdateEnabled(true);
 						}
 					};
 					xhr.setRequestHeader("XPassword", hash);
@@ -173,13 +218,13 @@
 			}
 			function OnLoad() {
 				SetHash();
-				GetSubjects();
 			}
 		</script>
 	</head>
 	<body onload="OnLoad()">
 		<div class="content">
 			<select class="listbox-class" onchange="GetSubjects()">
+				<option value="-1">Wybierz Klase</option>
 				<option value="0">3 Klasa</option>
 				<option value="1">4 Klasa</option>
 				<option value="2">5 Klasa</option>
@@ -200,7 +245,8 @@
 			<select class="listbox-exercises" onchange="GetEx()"> </select
 			><br />
 			<textarea class="output-ex" readonly="true"></textarea>
-			<img class="result"></img>
+			<div>
+			<img class="result"></img></div>
 		</div>
 	</body>
 </html>
