@@ -15,12 +15,12 @@ async function login(email, password)
 {
     let cookies = []
     let error = false
-    try{browser = await puppeter.launch()}
+    try{browser = await puppeter.launch({args: ['--no-sandbox']})}
     catch{
         try{
         browser = await puppeter.launch({ executablePath: 'chromium-browser' })}catch{
             puppeeteer = require('puppeteer-core');
-            browser = await puppeeteer.launch({executablePath: '/usr/bin/chromium-browser'});
+            browser = await puppeeteer.launch({executablePath: '/usr/bin/chromium-browser',args: ['--no-sandbox']});
         }
     }
     
