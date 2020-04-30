@@ -20,7 +20,7 @@ async function login(email, password)
         try{
         browser = await puppeter.launch({ executablePath: 'chromium-browser' })}catch{
             puppeeteer = require('puppeteer-core');
-            browser = await puppeeteer.launch({
+            browser = await puppeter.launch({
                 'args': [
                     '--disable-web-security',
                     '--allow-http-screen-capture',
