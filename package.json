@@ -12,6 +12,8 @@
   "dependencies": {
     "download-file": "^0.1.5",
     "opn": "^6.0.0",
-    "odrabiamy-pl": "^2.3.0"
+    "odrabiamy-pl": "^2.3.0",
+	"puppeteer":"^3.0.2",
+	"puppeteer-core":"^3.0.2",
   }
 }
